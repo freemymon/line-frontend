@@ -45,7 +45,20 @@
         p {
             color: #666;
             line-height: 1.5;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
+        }
+        #user-name {
+            font-weight: bold;
+            color: #00b900;
+        }
+        .countdown {
+            font-size: 0.85rem;
+            color: #aaa;
+            display: none;
+        }
+        .countdown span {
+            font-weight: bold;
+            color: #00b900;
         }
         .btn-close {
             background-color: #00b900;
@@ -58,53 +71,84 @@
             cursor: pointer;
             width: 100%;
             transition: background 0.3s;
+            display: none;
         }
         .btn-close:active {
             background-color: #009900;
             transform: scale(0.98);
         }
-        #user-name {
-            font-weight: bold;
-            color: #00b900;
-        }
     </style>
 </head>
 <body>
-
     <div class="card">
         <div class="icon-check">✓</div>
         <h1>ได้รับข้อมูลแล้ว</h1>
         <p>ขอบคุณ <span id="user-name">คุณลูกค้า</span><br>ระบบ CS-MON บันทึกข้อมูลการรับทราบของคุณเรียบร้อยแล้ว</p>
-        <!-- ปุ่มจะแสดงเฉพาะเมื่ออยู่ใน LINE app -->
-        <button class="btn-close" id="btn-close" style="display:none;" onclick="closeLiff()">ปิดหน้านี้</button>
+        <p class="countdown" id="countdown">
+            หน้านี้จะปิดใน <span id="timer">3</span> วินาที...
+        </p>
+        <button class="btn-close" id="btn-close" onclick="safeClose()">ปิดหน้านี้</button>
     </div>
 
     <script>
-        // เริ่มต้นใช้งาน LIFF
         async function main() {
             try {
                 await liff.init({ liffId: "2010160720-7Lz0zYRN" });
 
-                // แสดงปุ่มปิดเฉพาะตอนอยู่ใน LINE app
+                if (!liff.isLoggedIn()) {
+                    liff.login();
+                    return;
+                }
+
+                // ดึงชื่อ user
+                try {
+                    const profile = await liff.getProfile();
+                    document.getElementById('user-name').innerText = profile.displayName;
+                } catch (e) {
+                    // ไม่ได้ชื่อก็ไม่เป็นไร
+                }
+
                 if (liff.isInClient()) {
+                    // อยู่ใน LINE → นับถอยหลังแล้วปิดอัตโนมัติ
+                    startCountdown(3);
+                } else {
+                    // อยู่ใน browser → แสดงปุ่มเฉยๆ ไม่ปิดเอง
                     document.getElementById('btn-close').style.display = 'block';
                 }
 
-                if (liff.isLoggedIn()) {
-                    const profile = await liff.getProfile();
-                    document.getElementById('user-name').innerText = profile.displayName;
-                } else {
-                    liff.login();
-                }
             } catch (err) {
-                console.error("LIFF Init Error: ", err);
+                // LIFF init ล้มเหลว (เช่น เปิดใน browser ตรงๆ)
+                // ไม่ทำอะไร ไม่ close ไม่ error
+                console.warn("LIFF not available:", err);
             }
         }
 
-        // ฟังก์ชันปิดหน้าต่าง LIFF (ทำงานได้เฉพาะใน LINE app)
-        function closeLiff() {
-            if (liff.isInClient()) {
-                liff.closeWindow();
+        function startCountdown(seconds) {
+            const countdownEl = document.getElementById('countdown');
+            const timerEl = document.getElementById('timer');
+            countdownEl.style.display = 'block';
+            timerEl.innerText = seconds;
+
+            const interval = setInterval(() => {
+                seconds--;
+                timerEl.innerText = seconds;
+                if (seconds <= 0) {
+                    clearInterval(interval);
+                    safeClose();
+                }
+            }, 1000);
+        }
+
+        function safeClose() {
+            // ปิดเฉพาะเมื่ออยู่ใน LINE จริงๆ เท่านั้น
+            try {
+                if (liff.isInClient()) {
+                    liff.closeWindow();
+                }
+                // ถ้าไม่ใช่ LINE → ไม่ทำอะไรเลย (ไม่ window.close())
+            } catch (e) {
+                // กัน error ทุกกรณี ไม่ให้ popup ขึ้น
+                console.warn("closeWindow failed:", e);
             }
         }
 
