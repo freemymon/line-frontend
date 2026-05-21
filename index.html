@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS-MON | Acknowledge</title>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif; /* แนะนำให้ใช้ Font Prompt จะดูทันสมัยมาก */
+            background-color: #eff2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #2c3e50;
+        }
+        .container {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 24px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+            text-align: center;
+            width: 85%;
+            max-width: 400px;
+        }
+        .status-icon {
+            width: 90px;
+            height: 90px;
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 50px;
+            margin: 0 auto 20px;
+        }
+        h2 {
+            margin: 10px 0;
+            font-size: 1.4rem;
+            color: #1a1a1a;
+        }
+        p {
+            font-size: 1rem;
+            color: #7f8c8d;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        .user-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border: 1px dashed #ced4da;
+        }
+        #user-name {
+            font-weight: 600;
+            color: #00b900;
+        }
+        .btn-confirm {
+            background-color: #00b900;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            box-shadow: 0 4px 12px rgba(0, 185, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="status-icon">✓</div>
+        <h2>บันทึกข้อมูลสำเร็จ</h2>
+        
+        <div class="user-info">
+            สวัสดี <span id="user-name">กำลังโหลด...</span>
+        </div>
+
+        <p>ระบบ <b>CS-MON</b> ได้รับการยืนยัน<br>การรับทราบข้อมูลของคุณเรียบร้อยแล้ว</p>
+        
+        <button class="btn-confirm" onclick="alert('ขอบคุณที่ใช้บริการ CS-MON')">ตกลง</button>
+    </div>
+
+    <script>
+        async function main() {
+            try {
+                await liff.init({ liffId: "2010160720-7Lz0zYRN" }); 
+                
+                if (liff.isLoggedIn()) {
+                    const profile = await liff.getProfile();
+                    document.getElementById('user-name').innerText = profile.displayName;
+                } else {
+                    liff.login();
+                }
+            } catch (err) {
+                console.error("LIFF Error:", err);
+                document.getElementById('user-name').innerText = "ผู้ใช้งาน";
+            }
+        }
+        main();
+    </script>
+</body>
+</html>
