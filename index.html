@@ -28,7 +28,7 @@
         .icon-check {
             width: 80px;
             height: 80px;
-            background: #00b900; /* สีเขียว LINE */
+            background: #00b900;
             color: white;
             border-radius: 50%;
             display: flex;
@@ -75,7 +75,8 @@
         <div class="icon-check">✓</div>
         <h1>ได้รับข้อมูลแล้ว</h1>
         <p>ขอบคุณ <span id="user-name">คุณลูกค้า</span><br>ระบบ CS-MON บันทึกข้อมูลการรับทราบของคุณเรียบร้อยแล้ว</p>
-        <button class="btn-close" onclick="closeLiff()">ปิดหน้านี้</button>
+        <!-- ปุ่มจะแสดงเฉพาะเมื่ออยู่ใน LINE app -->
+        <button class="btn-close" id="btn-close" style="display:none;" onclick="closeLiff()">ปิดหน้านี้</button>
     </div>
 
     <script>
@@ -83,6 +84,12 @@
         async function main() {
             try {
                 await liff.init({ liffId: "2010160720-7Lz0zYRN" });
+
+                // แสดงปุ่มปิดเฉพาะตอนอยู่ใน LINE app
+                if (liff.isInClient()) {
+                    document.getElementById('btn-close').style.display = 'block';
+                }
+
                 if (liff.isLoggedIn()) {
                     const profile = await liff.getProfile();
                     document.getElementById('user-name').innerText = profile.displayName;
@@ -94,9 +101,11 @@
             }
         }
 
-        // ฟังก์ชันปิดหน้าต่าง LIFF
+        // ฟังก์ชันปิดหน้าต่าง LIFF (ทำงานได้เฉพาะใน LINE app)
         function closeLiff() {
-            liff.closeWindow();
+            if (liff.isInClient()) {
+                liff.closeWindow();
+            }
         }
 
         main();
