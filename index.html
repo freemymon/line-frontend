@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,92 +7,82 @@
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <style>
         body {
-            font-family: 'Prompt', sans-serif; /* แนะนำให้ใช้ Font Prompt จะดูทันสมัยมาก */
-            background-color: #eff2f5;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #f4f7f6;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
-            color: #2c3e50;
+            color: #333;
         }
-        .container {
+        .card {
             background: white;
-            padding: 40px 30px;
-            border-radius: 24px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             text-align: center;
-            width: 85%;
-            max-width: 400px;
+            max-width: 80%;
+            width: 350px;
         }
-        .status-icon {
-            width: 90px;
-            height: 90px;
-            background: #e8f5e9;
-            color: #2e7d32;
+        .icon-check {
+            width: 80px;
+            height: 80px;
+            background: #00b900; /* สีเขียว LINE */
+            color: white;
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 50px;
-            margin: 0 auto 20px;
+            font-size: 40px;
+            margin: 0 auto 1.5rem;
         }
-        h2 {
-            margin: 10px 0;
-            font-size: 1.4rem;
-            color: #1a1a1a;
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #111;
         }
         p {
-            font-size: 1rem;
-            color: #7f8c8d;
-            line-height: 1.6;
-            margin-bottom: 30px;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 2rem;
         }
-        .user-info {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-            border: 1px dashed #ced4da;
-        }
-        #user-name {
-            font-weight: 600;
-            color: #00b900;
-        }
-        .btn-confirm {
+        .btn-close {
             background-color: #00b900;
             color: white;
             border: none;
-            padding: 15px 40px;
-            border-radius: 15px;
-            font-size: 1.1rem;
-            font-weight: 600;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
             cursor: pointer;
             width: 100%;
-            box-shadow: 0 4px 12px rgba(0, 185, 0, 0.2);
+            transition: background 0.3s;
+        }
+        .btn-close:active {
+            background-color: #009900;
+            transform: scale(0.98);
+        }
+        #user-name {
+            font-weight: bold;
+            color: #00b900;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="status-icon">✓</div>
-        <h2>บันทึกข้อมูลสำเร็จ</h2>
-        
-        <div class="user-info">
-            สวัสดี <span id="user-name">กำลังโหลด...</span>
-        </div>
-
-        <p>ระบบ <b>CS-MON</b> ได้รับการยืนยัน<br>การรับทราบข้อมูลของคุณเรียบร้อยแล้ว</p>
-        
-        <button class="btn-confirm" onclick="alert('ขอบคุณที่ใช้บริการ CS-MON')">ตกลง</button>
+    <div class="card">
+        <div class="icon-check">✓</div>
+        <h1>ได้รับข้อมูลแล้ว</h1>
+        <p>ขอบคุณ <span id="user-name">คุณลูกค้า</span><br>ระบบ CS-MON บันทึกข้อมูลการรับทราบของคุณเรียบร้อยแล้ว</p>
+        <button class="btn-close" onclick="closeLiff()">ปิดหน้านี้</button>
     </div>
 
     <script>
+        // เริ่มต้นใช้งาน LIFF
         async function main() {
             try {
-                await liff.init({ liffId: "2010160720-7Lz0zYRN" }); 
-                
+                await liff.init({ liffId: "2010160720-7Lz0zYRN" });
                 if (liff.isLoggedIn()) {
                     const profile = await liff.getProfile();
                     document.getElementById('user-name').innerText = profile.displayName;
@@ -100,10 +90,15 @@
                     liff.login();
                 }
             } catch (err) {
-                console.error("LIFF Error:", err);
-                document.getElementById('user-name').innerText = "ผู้ใช้งาน";
+                console.error("LIFF Init Error: ", err);
             }
         }
+
+        // ฟังก์ชันปิดหน้าต่าง LIFF
+        function closeLiff() {
+            liff.closeWindow();
+        }
+
         main();
     </script>
 </body>
